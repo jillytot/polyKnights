@@ -24,24 +24,31 @@ public class baddie : MonoBehaviour {
 
 	public float flashTime; //sets the time for the material swap to last for when the enemy gets hit
 
-	public Transform storePlayerPos; //Target players if there are no primary targets
-	public GameObject saveMe; // Primary target..
-	saveMe targetPrimary;
+	//public Transform storePlayerPos; //Target players if there are no primary targets
 
-	Vector3 playerPosition;
-	Vector3 targetPlayer;
+	GameObject playerObjects;
+	Vector3 storePlayerPos;
 
-	public bool walker = true; //If the enemy is a walker enemy
 
-	public bool shooter;
-	bool targetLocked;
-	Vector3 myTarget;
-	public float attackRate = 1.0f;
-	bool reloadArrow;
-	public GameObject myArrow;
-	public float arrowSpeed = 10.0f;
+	GameObject walkerObjects; //Eventually this might need to be an array of objects, but from here we can get any component we need from the Walker;
+	Vector3 storeWalkerPos; //The vector3 position of the walker(s)
+	bool walkerSafe; //If the walker is targetable or not. 
 
-	bool attackReady;
+	Vector3 targetPosition; //current target of the enemy
+	Vector3 groundTarget; //target position adjusted for ground unit
+
+	public bool moveOnGround = true; //If the enemy is a walker enemy
+
+	//Shooter specific behavior
+	public bool shooter; //Enables this enemy to shoot arrows
+	bool targetLocked; //If shooter has target
+	Vector3 myTarget; //Location of target
+	public float attackRate = 1.0f; // Frequency of attack rate
+	bool reloadArrow; //triggers relaoding of the next round
+	public GameObject myArrow; //the object which the shooter fires
+	public float arrowSpeed = 10.0f; //Speed at the projectile goes at
+
+	bool attackReady; //returns true when enemy is ready to attack
 
 	// Use this for initialization
 	void Start () {
@@ -53,7 +60,12 @@ public class baddie : MonoBehaviour {
 		attackReady = true;
 		reloadArrow = false;
 
-		targetPrimary = saveMe.gameObject.GetComponent<saveMe>();
+		//targetPrimary = saveMe.gameObject.GetComponent<saveMe>();
+		walkerObjects = GameObject.FindWithTag("Walker"); 
+		playerObjects = GameObject.FindWithTag("Player");
+		walkerSafe = walkerObjects.GetComponent<saveMe>().safe;
+		Debug.Log (walkerSafe);
+
 
 
 	
@@ -61,6 +73,9 @@ public class baddie : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+		storeWalkerPos = walkerObjects.transform.position;
+		storePlayerPos = playerObjects.transform.position;
 
 		//Kill the enemy if their HP reaches 0
 		if (HP <= 0) {
@@ -83,7 +98,7 @@ public class baddie : MonoBehaviour {
 
 		}
 
-	if (walker == true) {
+	if (moveOnGround == true) {
 
 			basicBaddieBehavior ();
 
@@ -101,23 +116,29 @@ public class baddie : MonoBehaviour {
 		
 		yield return new WaitForSeconds (flashTime);
 		imHit = false;
+
 	}
 
+	//Basic enemy behavior
 	void basicBaddieBehavior () { 
 
-		if (targetPrimary.safe == false) {
+		//check walker status to determine target, if walker is not safe, then target walker
+		if (walkerSafe == false) {
 
-			playerPosition = targetPrimary.saveMePos;
-			Debug.Log("Enemy moving towards Walker at: " +  playerPosition);
+			targetPosition = storeWalkerPos;
+			Debug.Log("Enemy moving towards Walker at: " +  targetPosition);
 
 		} else {
 
-			playerPosition = storePlayerPos.transform.position;
+		//if (walkerSafe == true) {
+
+			targetPosition = storePlayerPos;
+			Debug.Log("Enemy moving towards Player at: " +  targetPosition);
 
 		}
 
-		targetPlayer = new Vector3 (playerPosition.x, this.gameObject.transform.position.y, playerPosition.z);
-		transform.position = Vector3.MoveTowards(transform.position, targetPlayer, movementSpeed * Time.deltaTime);
+		groundTarget = new Vector3 (targetPosition.x, this.gameObject.transform.position.y, targetPosition.z);
+		transform.position = Vector3.MoveTowards(transform.position, groundTarget, movementSpeed * Time.deltaTime);
 
 	}
 
@@ -130,7 +151,7 @@ public class baddie : MonoBehaviour {
 
 			if (targetLocked == false) {
 
-				myTarget = storePlayerPos.transform.position + Vector3.up;
+				myTarget = storePlayerPos + Vector3.up;
 				targetLocked = true;
 			}
 

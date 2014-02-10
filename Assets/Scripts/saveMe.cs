@@ -14,13 +14,15 @@ public class saveMe : damageControl {
 	// Use this for initialization
 	void Start () {
 
-		safe = false;
+		safe = true;
 		triggerSafe = false;
 	
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
+		safe = true;
 
 
 		saveMePos = this.gameObject.transform.position;
@@ -30,8 +32,8 @@ public class saveMe : damageControl {
 		if (triggerSafe == true) { 
 
 			//Safe turns off after "n" seconds
-			triggerSafe = false;
-			StartCoroutine("triggerUnsafe");
+			//triggerSafe = false;
+			//StartCoroutine("triggerUnsafe");
 
 		}
 
