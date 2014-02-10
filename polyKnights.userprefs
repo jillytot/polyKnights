@@ -1,15 +1,10 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../../../../Downloads/ArrowStuff/Assets/Targeting.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/damageControl.cs">
     <Files>
-      <File FileName="../../../../Downloads/ArrowStuff/Assets/Arrow.cs" Line="1" Column="1" />
-      <File FileName="../../../../Downloads/ArrowStuff/Assets/Targeting.cs" Line="1" Column="1" />
-      <File FileName="Assets/baddie.cs" Line="1" Column="1" />
-      <File FileName="Assets/arrowBehavior.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/playerMovement.cs" Line="1" Column="1" />
-      <File FileName="Assets/saveMe.cs" Line="33" Column="4" />
-      <File FileName="Assets/cameraFX.cs" Line="17" Column="17" />
-      <File FileName="../../../pushMan/Assets/Scripts/CameraFX.cs" Line="47" Column="97" />
+      <File FileName="Assets/Scripts/playerMovement.cs" Line="5" Column="46" />
+      <File FileName="Assets/Scripts/animatePlayer.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/damageControl.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

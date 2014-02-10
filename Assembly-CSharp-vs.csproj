@@ -47,19 +47,20 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\animatePlayer.cs" />
+     <Compile Include="Assets\Scripts\arrowBehavior.cs" />
+     <Compile Include="Assets\Scripts\baddie.cs" />
+     <Compile Include="Assets\Scripts\cameraFX.cs" />
+     <Compile Include="Assets\Scripts\damageControl.cs" />
      <Compile Include="Assets\Scripts\disableRenderer.cs" />
+     <Compile Include="Assets\Scripts\flickerGraphic.cs" />
      <Compile Include="Assets\Scripts\killMeWhen.cs" />
      <Compile Include="Assets\Scripts\levitateMe.cs" />
      <Compile Include="Assets\Scripts\playerMovement.cs" />
+     <Compile Include="Assets\Scripts\saveMe.cs" />
+     <Compile Include="Assets\Scripts\shadow.cs" />
      <Compile Include="Assets\Scripts\spinMe.cs" />
-     <Compile Include="Assets\arrowBehavior.cs" />
-     <Compile Include="Assets\baddie.cs" />
-     <Compile Include="Assets\cameraFX.cs" />
-     <Compile Include="Assets\flickerGraphic.cs" />
-     <Compile Include="Assets\saveMe.cs" />
-     <Compile Include="Assets\shadow.cs" />
-     <Compile Include="Assets\stats.cs" />
-     <Compile Include="Assets\weaponBehavior.cs" />
+     <Compile Include="Assets\Scripts\stats.cs" />
+     <Compile Include="Assets\Scripts\weaponBehavior.cs" />
      <None Include="Assets\Shaders\Fog.shader" />
      <None Include="Assets\Shaders\RimBright.shader" />
      <None Include="Assets\Shaders\FogHighlightBlended.shader" />

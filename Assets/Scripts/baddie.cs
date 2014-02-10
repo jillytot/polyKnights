@@ -3,6 +3,15 @@ using System.Collections;
 
 public class baddie : MonoBehaviour {
 
+	public enum enemyType { //possible basic enemy types 
+		
+		DEFAULT,
+		SHOOTER,
+		
+	}
+
+	public enemyType thisEnemyType;
+
 	public int maxHP = 3; //enemies max total HP
 	public int HP; //Enemies starting HP
 	public float movementSpeed = 1;
@@ -76,7 +85,7 @@ public class baddie : MonoBehaviour {
 
 	if (walker == true) {
 
-			walkerBehavior ();
+			basicBaddieBehavior ();
 
 		}
 
@@ -94,11 +103,12 @@ public class baddie : MonoBehaviour {
 		imHit = false;
 	}
 
-	void walkerBehavior () { 
+	void basicBaddieBehavior () { 
 
 		if (targetPrimary.safe == false) {
 
-			playerPosition = targetPrimary.gameObject.transform.position; 
+			playerPosition = targetPrimary.saveMePos;
+			Debug.Log("Enemy moving towards Walker at: " +  playerPosition);
 
 		} else {
 
@@ -126,14 +136,14 @@ public class baddie : MonoBehaviour {
 
 			if (targetLocked == true) {
 
-				Debug.Log("Target at: " + myTarget);
+				//Debug.Log("Target at: " + myTarget);
 				targetLocked = false;
 			}
 		} 
 
 		if (attackReady == false && reloadArrow == false) {
 
-			Debug.Log("Commence Firing!");
+			//Debug.Log("Commence Firing!");
 			reloadArrow = true;
 			StartCoroutine("refreshAttack");
 			//var newArrow = myArrow.GetComponent<arrowBehavior>();
@@ -141,15 +151,6 @@ public class baddie : MonoBehaviour {
 			var arrow = (GameObject)Instantiate(myArrow, transform.position, Quaternion.identity);
 			var arrowComponent = arrow.GetComponent<arrowBehavior>();
 			arrowComponent.ShootSelf(myTarget, arrowSpeed );
-			
-			
-			//Instantiate(newArrow, transform.position, transform.rotation);
-			//newArrow.myTarget = myTarget;
-			//newArrow.myStrength = 10.0f;
-
-		
-
-
 
 		}
 	}

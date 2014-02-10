@@ -2,7 +2,7 @@
 
 using System.Collections;
 
-public class playerMovement : MonoBehaviour {
+public class playerMovement : damageControl {
 
 	public float speed = 15.0F; //Max speed of the character
 	float newSpeed; //Used to modify speed based on input
@@ -42,6 +42,7 @@ public class playerMovement : MonoBehaviour {
 		myRotation = transform.rotation;
 
 	}
+	
 
 //	void FixedUpdate () {
 //	
