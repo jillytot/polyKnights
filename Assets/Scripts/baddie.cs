@@ -48,6 +48,11 @@ public class baddie : MonoBehaviour {
 
 	public bool moveOnGround; //If the enemy is a walker enemy
 
+	//variables for smoothing enemy movement
+	private float smoothX = 0.0f;
+	private float smoothZ = 0.0f;
+	public float smoothTime = 0.3f;
+	
 	//Shooter specific behavior
 	public bool shooter; //Enables this enemy to shoot arrows
 	bool targetLocked; //If shooter has target
@@ -57,6 +62,19 @@ public class baddie : MonoBehaviour {
 	public GameObject myArrow; //the object which the shooter fires
 	public float arrowSpeed = 10.0f; //Speed at the projectile goes at
 
+	//basic melee variables
+
+	public bool meleeEnabled; //toggle on if you want the enemy to do a melee strike (requires groundMovement to be on)
+
+	public float attackRange = 6.0f; //Range at which the enemy will initiate an attack, this should always be a larger number than hold distance.
+	public float holdDistance = 1.0f; //distance the enemy will keep from the target
+	Vector3 holdPosition; //position of the enemy at holdDistance from the target
+	Vector3 offsetToTarget; //difference in position between enemy and target
+
+
+
+
+	
 	void Awake () {
 
 		walkerObjects = GameObject.FindWithTag("Walker"); 
@@ -76,14 +94,7 @@ public class baddie : MonoBehaviour {
 		reloadArrow = false;
 
 		checkWalker = walkerObjects.GetComponent<saveMe>();
-		//walkerSafe = walkerObjects.GetComponent<saveMe>().safe;
-		Debug.Log (walkerSafe);
-		//targetPrimary = saveMe.gameObject.GetComponent<saveMe>();
 
-
-
-
-	
 	}
 	
 	// Update is called once per frame
@@ -137,20 +148,39 @@ public class baddie : MonoBehaviour {
 	//Basic enemy behavior
 	void basicBaddieBehavior () { 
 
+
+
 		//check walker status to determine target, if walker is not safe, then target walker
 		if (checkWalker && checkWalker.safe == false) {
 
 			targetPosition = storeWalkerPos;
-			Debug.Log("Enemy moving towards Walker at: " +  targetPosition);
+			//Debug.Log("Enemy moving towards Walker at: " +  targetPosition);
 
 		} else {
 
 			targetPosition = storePlayerPos;
-			Debug.Log("Enemy moving towards Player at: " +  targetPosition);
+			//Debug.Log("Enemy moving towards Player at: " +  targetPosition);
 
 		}
 
-		groundTarget = new Vector3 (targetPosition.x, this.gameObject.transform.position.y, targetPosition.z);
+		if (meleeEnabled == true) {
+
+			basicMelee ();
+
+			groundTarget = new Vector3 (holdPosition.x, this.gameObject.transform.position.y, holdPosition.z);
+			
+		} else {
+
+			groundTarget = new Vector3 (targetPosition.x, this.gameObject.transform.position.y, targetPosition.z);
+
+			}
+
+		//take x and z positions and smooth them out relative to the enemies current posotion (This will help stop the critter jitters)
+		float newXPos = Mathf.SmoothDamp(transform.position.x, groundTarget.x, ref smoothX, smoothTime);
+		float newZPos = Mathf.SmoothDamp(transform.position.z, groundTarget.z, ref smoothZ, smoothTime);
+
+		groundTarget = new Vector3 (newXPos, groundTarget.y, newZPos);
+
 		transform.position = Vector3.MoveTowards(transform.position, groundTarget, movementSpeed * Time.deltaTime);
 
 	}
@@ -180,7 +210,6 @@ public class baddie : MonoBehaviour {
 			//Debug.Log("Commence Firing!");
 			reloadArrow = true;
 			StartCoroutine("refreshAttack");
-			//var newArrow = myArrow.GetComponent<arrowBehavior>();
 		
 			var arrow = (GameObject)Instantiate(myArrow, transform.position, Quaternion.identity);
 			var arrowComponent = arrow.GetComponent<arrowBehavior>();
@@ -194,5 +223,43 @@ public class baddie : MonoBehaviour {
 		yield return new WaitForSeconds (Random.Range(attackRate * 0.9f, attackRate));
 		attackReady = true;
 		reloadArrow = false;
+	}
+
+	void basicMelee () {
+
+		offsetToTarget =  this.gameObject.transform.position - targetPosition;
+
+		//var distanceToTarget = offsetToTarget.sqrMagnitude;
+
+
+
+		if (offsetToTarget.sqrMagnitude < holdDistance * holdDistance) {
+
+			holdPosition = transform.position + offsetToTarget;
+
+		} else {
+
+			holdPosition = targetPosition;
+
+		}
+
+//		if (Mathf.Abs(offsetToTarget.x) < holdDistance) {
+//
+//			holdPosition.x = transform.position.x + offsetToTarget.x;
+//			//holdPosition.x = offsetToTarget.x;
+//			Debug.Log("holdPosition.x = " + holdPosition.x);
+//
+//		}
+//
+//		if (Mathf.Abs(offsetToTarget.z) < holdDistance) {
+//			
+//			holdPosition.z = transform.position.z + offsetToTarget.z;
+//			//holdPosition.z = offsetToTarget.z;
+//			Debug.Log("holdPosition.z = " + holdPosition.z);
+//			
+//		}
+
+		//Debug.Log("Distance to target is: " + offsetToTarget);
+
 	}
 }
