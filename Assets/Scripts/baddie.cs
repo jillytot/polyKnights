@@ -22,6 +22,7 @@ public class baddie : MonoBehaviour {
 
 	public GameObject enemyMat; //access the gameobject that contains the enemy material
 	public Material hitMat; // this is the material used for when the enemy takes damage
+	public Material attackMat; //switch material to this while attacking
 	Material storeMat; //used to store the default enemy material
 
 	//variables that manage taking damage
@@ -70,9 +71,12 @@ public class baddie : MonoBehaviour {
 	public float holdDistance = 1.0f; //distance the enemy will keep from the target
 	Vector3 holdPosition; //position of the enemy at holdDistance from the target
 	Vector3 offsetToTarget; //difference in position between enemy and target
+	Vector3 chargeTarget; //direction of attack
 
 
-
+	bool attacking; //used to disable other movement while attacking
+	bool attackDone; //returns true when attack is finished
+	bool startAttacking;
 
 	
 	void Awake () {
@@ -91,7 +95,10 @@ public class baddie : MonoBehaviour {
 		targetLocked = false;
 		Vector3 myTarget = Vector3.zero;
 		attackReady = true;
+		attacking = false;
 		reloadArrow = false;
+		attackDone = false;
+		startAttacking = false;
 
 		checkWalker = walkerObjects.GetComponent<saveMe>();
 
@@ -111,11 +118,17 @@ public class baddie : MonoBehaviour {
 		}
 
 		//If i've been hit, do this:
+		//TODO: change this to a function which the player access with get component
+
 		if (imHit == true) {
 
 			//Change the enemy material to indicate that it's been hit
 			enemyMat.renderer.material = hitMat;
 			StartCoroutine("flashTimer"); //resets imHIt bool after certain time
+
+		} else if (attacking == true) {
+		
+			enemyMat.renderer.material = attackMat;
 
 		} else {
 
@@ -176,13 +189,22 @@ public class baddie : MonoBehaviour {
 			}
 
 		//take x and z positions and smooth them out relative to the enemies current posotion (This will help stop the critter jitters)
+
+		if (attacking == true) {
+
+		} 
+
+		else {
+
+		Debug.Log("normal movement is happening");
 		float newXPos = Mathf.SmoothDamp(transform.position.x, groundTarget.x, ref smoothX, smoothTime);
 		float newZPos = Mathf.SmoothDamp(transform.position.z, groundTarget.z, ref smoothZ, smoothTime);
 
 		groundTarget = new Vector3 (newXPos, groundTarget.y, newZPos);
 
 		transform.position = Vector3.MoveTowards(transform.position, groundTarget, movementSpeed * Time.deltaTime);
-
+		
+		}
 	}
 
 	void shooterBehavior () {
@@ -219,19 +241,38 @@ public class baddie : MonoBehaviour {
 	}
 
 	IEnumerator refreshAttack () {
-		
+
 		yield return new WaitForSeconds (Random.Range(attackRate * 0.9f, attackRate));
 		attackReady = true;
+
+		if (shooter == true) {
+
 		reloadArrow = false;
+
+		}
+	}
+
+	IEnumerator chargeAttackTimer () {
+
+		yield return new WaitForSeconds(1);
+
+		attackDone = true;
+
+	}
+
+	IEnumerator chargeAttackTiming () {
+
+		yield return new WaitForSeconds(Random.Range(attackRate * 0.5f, attackRate));
+
+		attackReady = false;
+
+
 	}
 
 	void basicMelee () {
 
 		offsetToTarget =  this.gameObject.transform.position - targetPosition;
-
-		//var distanceToTarget = offsetToTarget.sqrMagnitude;
-
-
+	
 
 		if (offsetToTarget.sqrMagnitude < holdDistance * holdDistance) {
 
@@ -243,23 +284,48 @@ public class baddie : MonoBehaviour {
 
 		}
 
-//		if (Mathf.Abs(offsetToTarget.x) < holdDistance) {
-//
-//			holdPosition.x = transform.position.x + offsetToTarget.x;
-//			//holdPosition.x = offsetToTarget.x;
-//			Debug.Log("holdPosition.x = " + holdPosition.x);
-//
-//		}
-//
-//		if (Mathf.Abs(offsetToTarget.z) < holdDistance) {
-//			
-//			holdPosition.z = transform.position.z + offsetToTarget.z;
-//			//holdPosition.z = offsetToTarget.z;
-//			Debug.Log("holdPosition.z = " + holdPosition.z);
-//			
-//		}
 
-		//Debug.Log("Distance to target is: " + offsetToTarget);
 
+		//Do a charge attack
+		if (offsetToTarget.sqrMagnitude < attackRange * attackRange) {
+
+			if (attackReady == true && startAttacking == false) {
+				
+				//randomize & spread out attack rate
+				StartCoroutine("chargeAttackTiming");
+				startAttacking = true;
+
+			}
+
+
+			if (attacking == false && attackReady == false) {
+
+				chargeTarget = targetPosition - this.gameObject.transform.position;
+				chargeTarget = new Vector3(chargeTarget.x, 0, chargeTarget.z);
+				chargeTarget = chargeTarget.normalized;
+				attacking = true; 
+
+				StartCoroutine("chargeAttackTimer");
+
+			}
+
+			if (attacking == true) {
+
+			var chargeSpeed = movementSpeed * movementSpeed;
+			//StartCoroutine("refreshAttack");
+			transform.position = Vector3.MoveTowards(transform.position, transform.position + chargeTarget, chargeSpeed * Time.deltaTime);
+		
+			}
+
+		} else if (attackDone == true) {
+
+	//	if (attackDone == true && offsetToTarget.sqrMagnitude > holdDistance * holdDistance) {
+			
+			attacking = false;
+			attackDone = false;
+			attackReady = true;
+			startAttacking = false;
+			
+		}
 	}
 }
