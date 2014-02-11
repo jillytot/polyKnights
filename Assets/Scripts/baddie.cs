@@ -10,34 +10,43 @@ public class baddie : MonoBehaviour {
 		
 	}
 
-	public enemyType thisEnemyType;
+	public enemyType thisEnemyType; //enum for this enemy object
+
+	//Basic Enemy Stats
 
 	public int maxHP = 3; //enemies max total HP
 	public int HP; //Enemies starting HP
-	public float movementSpeed = 1;
+	public float movementSpeed = 1; //speed of enemy
+
+	//Material / Mesh control
 
 	public GameObject enemyMat; //access the gameobject that contains the enemy material
 	public Material hitMat; // this is the material used for when the enemy takes damage
 	Material storeMat; //used to store the default enemy material
 
-	public bool imHit = false; //Let's the enemy knows it's been hit so it can act accordingly
+	//variables that manage taking damage
 
+	public bool imHit = false; //Let's the enemy knows it's been hit so it can act accordingly
 	public float flashTime; //sets the time for the material swap to last for when the enemy gets hit
 
-	//public Transform storePlayerPos; //Target players if there are no primary targets
+	//Variables for finding targets
 
-	GameObject playerObjects;
-	Vector3 storePlayerPos;
-
-
+	GameObject playerObjects; //Store player objects for reference
+	Vector3 storePlayerPos; //position of player(s)
+	
 	GameObject walkerObjects; //Eventually this might need to be an array of objects, but from here we can get any component we need from the Walker;
 	Vector3 storeWalkerPos; //The vector3 position of the walker(s)
 	bool walkerSafe; //If the walker is targetable or not. 
+	saveMe checkWalker; //reference to the walker object(s) for checking variables.
 
 	Vector3 targetPosition; //current target of the enemy
 	Vector3 groundTarget; //target position adjusted for ground unit
 
-	public bool moveOnGround = true; //If the enemy is a walker enemy
+	//Specific enemy Behavior
+
+	bool attackReady; //returns true when enemy is ready to attack
+
+	public bool moveOnGround; //If the enemy is a walker enemy
 
 	//Shooter specific behavior
 	public bool shooter; //Enables this enemy to shoot arrows
@@ -48,7 +57,13 @@ public class baddie : MonoBehaviour {
 	public GameObject myArrow; //the object which the shooter fires
 	public float arrowSpeed = 10.0f; //Speed at the projectile goes at
 
-	bool attackReady; //returns true when enemy is ready to attack
+	void Awake () {
+
+		walkerObjects = GameObject.FindWithTag("Walker"); 
+		playerObjects = GameObject.FindWithTag("Player");
+
+		
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -60,11 +75,11 @@ public class baddie : MonoBehaviour {
 		attackReady = true;
 		reloadArrow = false;
 
-		//targetPrimary = saveMe.gameObject.GetComponent<saveMe>();
-		walkerObjects = GameObject.FindWithTag("Walker"); 
-		playerObjects = GameObject.FindWithTag("Player");
-		walkerSafe = walkerObjects.GetComponent<saveMe>().safe;
+		checkWalker = walkerObjects.GetComponent<saveMe>();
+		//walkerSafe = walkerObjects.GetComponent<saveMe>().safe;
 		Debug.Log (walkerSafe);
+		//targetPrimary = saveMe.gameObject.GetComponent<saveMe>();
+
 
 
 
@@ -123,14 +138,12 @@ public class baddie : MonoBehaviour {
 	void basicBaddieBehavior () { 
 
 		//check walker status to determine target, if walker is not safe, then target walker
-		if (walkerSafe == false) {
+		if (checkWalker && checkWalker.safe == false) {
 
 			targetPosition = storeWalkerPos;
 			Debug.Log("Enemy moving towards Walker at: " +  targetPosition);
 
 		} else {
-
-		//if (walkerSafe == true) {
 
 			targetPosition = storePlayerPos;
 			Debug.Log("Enemy moving towards Player at: " +  targetPosition);

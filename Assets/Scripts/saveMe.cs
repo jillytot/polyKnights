@@ -12,9 +12,14 @@ public class saveMe : damageControl {
 	public float mySpeed = 5f; //Walker speed
 
 	// Use this for initialization
+	void Awake () {
+
+		safe = false;
+
+	}
+
 	void Start () {
 
-		safe = true;
 		triggerSafe = false;
 	
 	}
@@ -22,7 +27,6 @@ public class saveMe : damageControl {
 	// Update is called once per frame
 	void Update () {
 
-		safe = true;
 
 
 		saveMePos = this.gameObject.transform.position;
