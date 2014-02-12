@@ -14,6 +14,8 @@ public class arrowBehavior : CustomBehaviour {
 	Vector3 m_targetPoint;
 	Vector3 m_velocity;
 	float accuracy;
+
+	public GameObject targetMarker;
 	
 	// force of gravity -- 9.8 is the "real" value, but setting this higher
 	// makes the arrows arc up more and come down faster, looks kinda cool
@@ -36,6 +38,10 @@ public class arrowBehavior : CustomBehaviour {
 		// 100% ganked from http://gamedev.stackexchange.com/questions/17467/calculating-velocity-needed-to-hit-target-in-parabolic-arc
 		// the internet will atrophy all our abilities to figure things out on our own
 		m_velocity.y = 0.5f * Gravity * timeOfFlight + (m_targetPoint.y - transform.position.y)/timeOfFlight;
+
+		var target = Instantiate(targetMarker, m_targetPoint, Quaternion.identity);
+		Destroy(target, timeOfFlight);
+		Destroy (this.gameObject, timeOfFlight);
 
 	}
 

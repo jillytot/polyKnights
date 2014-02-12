@@ -17,6 +17,7 @@ public class baddie : MonoBehaviour {
 	public int maxHP = 3; //enemies max total HP
 	public int HP; //Enemies starting HP
 	public float movementSpeed = 1; //speed of enemy
+	public int attackPower = 1; //strength of attacks
 
 	//Material / Mesh control
 
@@ -62,6 +63,7 @@ public class baddie : MonoBehaviour {
 	bool reloadArrow; //triggers relaoding of the next round
 	public GameObject myArrow; //the object which the shooter fires
 	public float arrowSpeed = 10.0f; //Speed at the projectile goes at
+	public float maxTargetRange = 50.0f; //maximum distance the projectile will fire.
 
 	//basic melee variables
 
@@ -209,6 +211,11 @@ public class baddie : MonoBehaviour {
 
 	void shooterBehavior () {
 
+		var targettingRange = maxTargetRange * maxTargetRange;
+		myTarget = storePlayerPos + Vector3.up;
+		var offsetToShootTarget = transform.position - myTarget;
+
+		if (offsetToShootTarget.sqrMagnitude < targettingRange) {
 
 		if (attackReady == true) {
 
@@ -216,7 +223,6 @@ public class baddie : MonoBehaviour {
 
 			if (targetLocked == false) {
 
-				myTarget = storePlayerPos + Vector3.up;
 				targetLocked = true;
 			}
 
@@ -237,6 +243,7 @@ public class baddie : MonoBehaviour {
 			var arrowComponent = arrow.GetComponent<arrowBehavior>();
 			arrowComponent.ShootSelf(myTarget, arrowSpeed );
 
+			}
 		}
 	}
 
@@ -300,32 +307,59 @@ public class baddie : MonoBehaviour {
 
 			if (attacking == false && attackReady == false) {
 
+				//calculate the target position to charge to
 				chargeTarget = targetPosition - this.gameObject.transform.position;
 				chargeTarget = new Vector3(chargeTarget.x, 0, chargeTarget.z);
 				chargeTarget = chargeTarget.normalized;
 				attacking = true; 
 
+				//attack will last for this long
 				StartCoroutine("chargeAttackTimer");
 
 			}
 
 			if (attacking == true) {
 
-			var chargeSpeed = movementSpeed * movementSpeed;
-			//StartCoroutine("refreshAttack");
-			transform.position = Vector3.MoveTowards(transform.position, transform.position + chargeTarget, chargeSpeed * Time.deltaTime);
+				//Get charge speed, and charge through target
+				var chargeSpeed = movementSpeed * movementSpeed;
+				transform.position = Vector3.MoveTowards(transform.position, transform.position + chargeTarget, chargeSpeed * Time.deltaTime);
 		
 			}
 
 		} else if (attackDone == true) {
 
-	//	if (attackDone == true && offsetToTarget.sqrMagnitude > holdDistance * holdDistance) {
-			
+			//Once the attack is over, reset all the parameters.
 			attacking = false;
 			attackDone = false;
 			attackReady = true;
 			startAttacking = false;
 			
+		}
+	}
+
+	void OnTriggerEnter (Collider other) {
+
+		//only damage the walker if not safe
+		if (checkWalker.safe == false) {
+
+		var hitWalker = other.GetComponent<saveMe>();
+
+			//for Melee
+			if (hitWalker && attacking == true) {
+
+				hitWalker.takeDamage (attackPower);
+
+			}
+		}
+
+		var hitPlayer = other.GetComponent<playerMovement>();
+
+		//for melee
+		if (hitPlayer && attacking == true) {
+
+			Debug.Log("enemy hit to player");
+			hitPlayer.takeDamage(attackPower);
+
 		}
 	}
 }
